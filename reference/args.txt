@@ -1,0 +1,15 @@
+[DEFAULT]
+TrainImageFolder = /data/xview3/data/reprojected_dataset/uuid/train
+TrainChipsPath = /data/xview3/data/reprojected_dataset/uuid/train_chips
+TrainLabelFile = /data/xview3/ground_truth_labels/20210825/train.csv
+ValImageFolder = /data/xview3/data/reprojected_dataset/uuid/validation
+ValChipsPath = /data/xview3/data/reprojected_dataset/uuid/validation_chips
+ValLabelFile = /data/xview3/ground_truth_labels/20210825/validation.csv
+NumPreprocWorkers = 8
+IsDistributed = False
+
+[training]
+NumberEpochs = 5
+OverwritePreprocessing = False
+Channels = vh,vv,bathymetry
+BatchSize = 16
