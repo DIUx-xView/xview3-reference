@@ -26,6 +26,11 @@ def get_shore_preds(df, shoreline_root, scene_id, shore_tolerance_km):
     shoreline_contours = np.load(
         f"{shoreline_root}/{scene_id}_shoreline.npy", allow_pickle=True
     )
+
+    # If there are no shorelines in the scene
+    if len(shoreline_contours) == 0:
+        return pd.DataFrame()
+
     contour_points = np.vstack(shoreline_contours)
 
     # Creating KD trees and computing distance matrix
