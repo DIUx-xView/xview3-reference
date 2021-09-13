@@ -317,67 +317,6 @@ class XView3Dataset(object):
         print(f"Number of Unique Chips: {len(self.chip_indices)}")
         print("Initialization complete")
 
-    @staticmethod
-    def get_label_map():
-        """
-        Not currently used, but useful for laying out how the
-        fishing vs. non-fishing labels can be separated.
-        """
-        background_labels = ["background"]
-        non_fishing_labels = [
-            "cargo",
-            "cargo_or_tanker",
-            "tanker",
-            "tug",
-            "supply_vessel",
-            "non_fishing",
-            "bunker_or_tanker",
-            "dredge_non_fishing",
-            "other_not_fishing",
-            "cargo_or_reefer",
-            "well_boat",
-            "container_reefer",
-            "bunker",
-            "specialized_reefer",
-            "reefer",
-            "submarine",
-        ]
-        fishing_labels = [
-            "other_purse_seines",
-            "trawlers",
-            "fishing",
-            "dredge_fishing",
-            "tuna_purse_seines",
-            "purse_seines",
-            "set_longlines",
-            "pots_and_traps",
-            "set_gillnets",
-            "drifting_longlines",
-            "pole_and_line",
-            "other_seines",
-            "trollers",
-            "seiners",
-        ]
-        personnel_labels = [
-            "passenger",
-            "patrol_vessel",
-            "seismic_vessel",
-            "dive_vessel",
-            "troller",
-            "research",
-        ]
-        other_labels = ["fixed_gear", "helicopter", "gear"]
-
-        label_map = {a: NONFISHING for a in non_fishing_labels}
-        label_map.update({a: FISHING for a in fishing_labels})
-        label_map.update({a: NONVESSEL for a in personnel_labels})
-        label_map.update({a: NONVESSEL for a in other_labels})
-
-        # Treat background as a separate class for classifier
-        # to support adding empty chips for training
-        label_map.update({a: BACKGROUND for a in background_labels})
-
-        return label_map
 
     def __len__(self):
         return len(self.chip_indices)
