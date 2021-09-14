@@ -1,10 +1,10 @@
 [DEFAULT]
-TrainImageFolder = /data/xview3/data/reprojected_dataset/uuid/train
-TrainChipsPath = /data/xview3/data/reprojected_dataset/uuid/train_chips
-TrainLabelFile = /data/xview3/ground_truth_labels/20210825/train.csv
-ValImageFolder = /data/xview3/data/reprojected_dataset/uuid/validation
-ValChipsPath = /data/xview3/data/reprojected_dataset/uuid/validation_chips
-ValLabelFile = /data/xview3/ground_truth_labels/20210825/validation.csv
+TrainImageFolder = /home/shared-data/xview3/data/tiny/train
+TrainChipsPath =  /home/shared-data/xview3/data/tiny/chips
+TrainLabelFile =  /home/shared-data/xview3/labels/train.csv
+ValImageFolder =  /home/shared-data/xview3/data/tiny/validation
+ValChipsPath = /home/shared-data/xview3/data/tiny/chips
+ValLabelFile = /home/shared-data/xview3/labels/validation.csv
 NumPreprocWorkers = 8
 IsDistributed = False
 
