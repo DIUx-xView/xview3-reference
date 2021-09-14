@@ -179,8 +179,9 @@ def main(config):
         image_std = np.load(f"{train_chips_path}/data_std.npy")
 
     # instantiate model with a number of classes
+    num_classes =  len(np.unique(list(train_data.label_map.values())))
     model = xView3BaselineModel(
-        num_classes=len(train_data.label_map.keys()),
+        num_classes=num_classes,
         num_channels=len(train_data.channels),
         image_mean=image_mean,
         image_std=image_std,

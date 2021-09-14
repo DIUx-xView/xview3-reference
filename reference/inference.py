@@ -70,8 +70,9 @@ def main(args):
         pin_memory=True,
     )
 
+    num_classes = len(np.unique(list(test_data_unlabeled.label_map.values())))
     model_eval = xView3BaselineModel(
-        num_classes=len(test_data_unlabeled.label_map.keys()),
+        num_classes=num_classes,
         num_channels=len(test_data_unlabeled.channels),
         image_mean=image_mean,
         image_std=image_std,
