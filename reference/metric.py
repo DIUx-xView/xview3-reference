@@ -193,7 +193,7 @@ def compute_fishing_class_performance(preds, gt, tp_inds, vessel_inds):
         else:
             if gt[pair["gt_idx"]]:
                 c_fn_inds.append(pair)
-            elif gt[pair["gt_idx"]]:
+            else:
                 c_fp_inds.append(pair)
 
     return c_tp_inds, c_fp_inds, c_fn_inds, c_tn_inds
