@@ -144,7 +144,7 @@ def compute_vessel_class_performance(preds, gt, tp_inds):
         else:
             if gt[pair["gt_idx"]]:
                 c_fn_inds.append(pair)
-            else:
+            elif gt[pair["gt_idx"]] == False:
                 c_fp_inds.append(pair)
 
     return c_tp_inds, c_fp_inds, c_fn_inds, c_tn_inds
@@ -193,7 +193,7 @@ def compute_fishing_class_performance(preds, gt, tp_inds, vessel_inds):
         else:
             if gt[pair["gt_idx"]]:
                 c_fn_inds.append(pair)
-            elif gt[pair["gt_idx"]]:
+            elif gt[pair["gt_idx"]] == False:
                 c_fp_inds.append(pair)
 
     return c_tp_inds, c_fp_inds, c_fn_inds, c_tn_inds
@@ -355,9 +355,9 @@ def score(pred, gt, shore_root, distance_tolerance=200, shore_tolerance=2):
                 scene_id,
                 shore_tolerance + distance_tolerance / 1000,
             )
-            print(
-                f"{len(gt_sc_shore)} ground truth, {len(pred_sc_shore)} predictions close to shore"
-            )
+            #print(
+            #    f"{len(gt_sc_shore)} ground truth, {len(pred_sc_shore)} predictions close to shore"
+            #)
             # For each scene, compute tp, fp, fn indices by applying the matching algorithm
             # while only considering close-to-shore predictions and detections
             if (len(gt_sc_shore) > 0) and (len(pred_sc_shore) > 0):
