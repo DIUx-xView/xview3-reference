@@ -220,10 +220,13 @@ def compute_length_performance(preds, gt, tp_inds):
         if isinstance(gt[pair["gt_idx"]], float):
             if np.isnan(gt[pair["gt_idx"]]):
                 continue
+        # The longest vessel in the world was 458m, and fixed-infrastructure is smaller.
+        # To bound the maximum possible error, we cap error at 500m.
+        gt_pred = min(gt[pair["gt_idx"]], 500)
+        inf_pred = min(preds[pair["pred_idx"]], 500)
         pct_error += (
-            np.abs(preds[pair["pred_idx"]] - gt[pair["gt_idx"]]) / gt[pair["gt_idx"]]
+            np.abs(inf_pred - gt_pred) / gt_pred
         )
-        # TODO: update this -- make it min(pct_error, 1.0)
         num_valid_gt += 1
 
     if num_valid_gt == 0:
