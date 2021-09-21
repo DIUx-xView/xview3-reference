@@ -6,7 +6,7 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial import KDTree, distance_matrix
 from tqdm import tqdm
 
-from constants import PIX_TO_M
+from constants import PIX_TO_M, MAX_OBJECT_LENGTH_M
 
 
 def get_shore_preds(df, shoreline_root, scene_id, shore_tolerance_km):
@@ -220,10 +220,14 @@ def compute_length_performance(preds, gt, tp_inds):
         if isinstance(gt[pair["gt_idx"]], float):
             if np.isnan(gt[pair["gt_idx"]]):
                 continue
+        # The longest vessel in the world was 458m, and fixed-infrastructure is smaller.
+        # To bound the maximum possible error, we cap preds and ground truth 
+        # at MAX_OBJECT_LENGTH_M, which by default is 500m
+        gt_pred = min(gt[pair["gt_idx"]], MAX_OBJECT_LENGTH_M)
+        inf_pred = min(preds[pair["pred_idx"]], MAX_OBJECT_LENGTH_M)
         pct_error += (
-            np.abs(preds[pair["pred_idx"]] - gt[pair["gt_idx"]]) / gt[pair["gt_idx"]]
+            np.abs(inf_pred - gt_pred) / gt_pred
         )
-        # TODO: update this -- make it min(pct_error, 1.0)
         num_valid_gt += 1
 
     if num_valid_gt == 0:
