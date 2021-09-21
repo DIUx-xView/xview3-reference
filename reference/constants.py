@@ -14,3 +14,6 @@ NODATA_VH_DB = -32768
 
 # UTM pixel-to-meter conversion value
 PIX_TO_M = 10
+
+# Maximum object length
+MAX_OBJECT_LENGTH_M = 500
