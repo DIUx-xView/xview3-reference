@@ -1,4 +1,4 @@
-# xview3-public
+# xview3-reference
 
 ## `/reference/train_reference.ipynb`
 The above notebook in the `reference` directory can get you started training the reference model with just a few scenes downloaded from [xView3 Challenge](https://iuu.xview.us/) website.
