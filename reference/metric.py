@@ -82,15 +82,20 @@ def compute_loc_performance(preds, gt, distance_tolerance=200):
     # Building distance matrix using Euclidean distance pixel space
     # multiplied by the UTM resolution (10 m per pixel)
     dist_mat = distance_matrix(pred_array, gt_array, p=2) * PIX_TO_M
+    
+    # Build a binary matrix.
+    # 0 where prediction/label are within distance_tolerance.
+    # 1 otherwise.
+    bin_mat = (distance_matrix > distance_tolerance).astype('int32')
 
     # Using Hungarian matching algorithm to assign lowest-cost gt-pred pairs
-    rows, cols = linear_sum_assignment(dist_mat)
+    rows, cols = linear_sum_assignment(bin_mat)
 
     # Recording indices for tp, fp, fn
     tp_inds = [
         {"pred_idx": preds.index[rows[ii]], "gt_idx": gt.index[cols[ii]]}
         for ii in range(len(rows))
-        if dist_mat[rows[ii], cols[ii]] < distance_tolerance
+        if bin_mat[rows[ii], cols[ii]] == 0
     ]
     tp_pred_inds = [a["pred_idx"] for a in tp_inds]
     tp_gt_inds = [a["gt_idx"] for a in tp_inds]
