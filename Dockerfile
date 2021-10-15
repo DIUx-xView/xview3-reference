@@ -34,5 +34,10 @@ RUN wget -nv https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.
     && conda env create -f ./environment.yml \ 
     && conda init bash
 
+# Copy pre-trained weights file to avoid dynamic download
+# Pre-trained weights downloaded from https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
+RUN mkdir -p /root/.cache/torch/hub/checkpoints/
+COPY ./reference/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth /root/.cache/torch/hub/checkpoints/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
+
 # Set entrypoint
 ENTRYPOINT [ "/home/xview3/run_inference.sh" ]
