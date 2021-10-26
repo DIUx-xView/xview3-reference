@@ -53,11 +53,11 @@ The other arguments uses by `inference.py`, e.g., `--channels` and `--chips_path
 
 
 ## `Dockerfile`
-For final submission on the open-source track, top solvers will be required to provide a container that executes their model.   This is an example of a Dockerfile meeting the required specification that supports `CUDA` and `Miniconda`. To build a Docker image using the `Dockerfile` use:
+For final submission on the open-source track, top solvers will be required to provide a container that executes their model. This is an example of a Dockerfile meeting the required specification that supports `CUDA` and `Miniconda`. To build a Docker image and tagging it using the `Dockerfile` use:
 ```
 docker build -t my-image-name:my-image-tag .
 ```
-where the image is named `my-image-name` and is tagged as `my-image-tag`. We recommend that you do not use `latest` tags, as these can make it difficult to identify and debug a specific container image. Instead we recommend tagging your container images with a semantic version, scripted version bump, or commit hash, so you can match your predictions to a specific commit or version of the code that produced them!
+where the `-t` option names the image as `my-image-name` and tags it as `my-image-tag`. We recommend that you do not use `latest` tags, as these can make it difficult to identify and debug a specific container image. Instead we recommend tagging your container images with a semantic version, scripted version bump, or commit hash, so you can match your predictions to a specific commit or version of the code that produced them! For example, a `my-image-name:my-image-tag` combination may be `xv3-reference:49a4494fe5bba36af31d6985caf17540de27bb1f`.
 
 To test your image, you can use:
 ```
