@@ -37,7 +37,7 @@ Example usage:
 python ./reference/inference.py --image_folder /home/xv3data \
 --scene_ids 0157baf3866b2cf9v \
 --output /home/xv3data/prediction/predict.csv \
---weights ./baseline/model_weights.pth \
+--weights ./reference/model_weights.pth \
 --chips_path /home/xv3data/chips \
 --channels vh vv bathymetry
 ```
