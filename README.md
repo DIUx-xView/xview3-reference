@@ -37,7 +37,7 @@ Example usage:
 python ./reference/inference.py --image_folder /home/xv3data \
 --scene_ids 0157baf3866b2cf9v \
 --output /home/xv3data/prediction/predict.csv \
---weights ./baseline/model_weights.pth \
+--weights ./reference/model_weights.pth \
 --chips_path /home/xv3data/chips \
 --channels vh vv bathymetry
 ```
@@ -53,15 +53,15 @@ The other arguments uses by `inference.py`, e.g., `--channels` and `--chips_path
 
 
 ## `Dockerfile`
-For final submission on the open-source track, top solvers will be required to provide a container that executes their model.   This is an example of a Dockerfile meeting the required specification that supports `CUDA` and `Miniconda`. To build a Docker image using the `Dockerfile` use:
+For final submission on the open-source track, top solvers will be required to provide a container that executes their model. This is an example of a `Dockerfile` meeting the required specification that supports `CUDA` and `Miniconda`. To build a Docker image and tagging it using the `Dockerfile`, first navigate to the root directory of this repo and then use:
 ```
-docker build -t my-image-name .
+docker build -t my-image-name:my-image-tag .
 ```
-where the image is named `my-image-name`.
+where the `-t` option names the image as `my-image-name` and tags it as `my-image-tag`. We recommend that you do not use `latest` tags, as these can make it difficult to identify and debug a specific container image. Instead we recommend tagging your container images with a semantic version, scripted version bump, or commit hash, so you can match your predictions to a specific commit or version of the code that produced them! For example, a `my-image-name:my-image-tag` combination may be `xv3-reference:49a4494fe5bba36af31d6985caf17540de27bb1f`.
 
 To test your image, you can use:
 ```
-time docker run --shm-size 16G --gpus=1 --mount type=bind,source=/home/xv3data,target=/on-docker/xv3data my-image-name /on-docker/xv3data/ 0157baf3866b2cf9v /on-docker/xv3data/prediction/prediction.csv
+time docker run --shm-size 16G --gpus=1 --mount type=bind,source=/home/xv3data,target=/on-docker/xv3data my-image-name:my-image-tag /on-docker/xv3data/ 0157baf3866b2cf9v /on-docker/xv3data/prediction/prediction.csv
 ```
 The example `docker run` utilizes a bind mount. `source=` specifies the local directory; `target=` specifies the corresponding directory in the container. The example above mounds the local `/home/xv3data` directory, allowing your container read and write access. The Docker container accesses the directory at `/on-docker/xv3data`. The example assumes that your local root xView3 data directory is `/home/xv3data` and its subdirectories containing xView3 imageries have `scene_id` names. For example, `/home/xv3data/0157baf3866b2cf9v` contains imageries for scene `0157baf3866b2cf9v`. Your Docker container will write the prediction CSV to `/on-docker/xv3data/prediction/prediction.csv` in the container which is accessible locally at `/home/xv3data/prediction/prediction.csv`.
 
