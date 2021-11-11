@@ -551,7 +551,7 @@ def main(args):
         ground_truth = ground_truth[
             ground_truth["scene_id"].isin(inference["scene_id"].unique())
         ].reset_index()
-    
+
     # By default we only score on high and medium confidence labels
     if not args.score_all:
         if args.drop_low_detect:
