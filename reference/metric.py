@@ -555,7 +555,7 @@ def main(args):
     # By default we only score on high and medium confidence labels
     if not args.score_all:
         if args.drop_low_detect:
-            inference = drop_low_confidence_preds(inference, ground_truth, distance_tolerance=args.distance_tolerance)
+            inference = drop_low_confidence_preds(inference, ground_truth, distance_tolerance=args.distance_tolerance, costly_dist=args.costly_dist)
         ground_truth = ground_truth[
             ground_truth["confidence"].isin(["HIGH", "MEDIUM"])
         ].reset_index()
