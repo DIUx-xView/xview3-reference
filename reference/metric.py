@@ -8,6 +8,91 @@ from tqdm import tqdm
 
 from constants import PIX_TO_M, MAX_OBJECT_LENGTH_M
 
+def drop_low_confidence_preds(pred, gt, distance_tolerance=200, costly_dist=False):
+    """
+    Matches detections in a predictions dataframe to a ground truth data frame and isolate the low confidence matches
+    
+    Args:
+        preds (pd.DataFrame): contains inference results for a
+            single scene
+        gt (pd.DataFrame): contains ground truth labels for a single
+            scene
+        distance_tolerance (int, optional): Maximum distance
+            for valid detection. Defaults to 200.
+        costly_dist (bool): whether to assign 9999999 to entries in the
+            distance metrics greater than distance_tolerance; defaults to False
+
+    Returns:
+        df_out (pd.DataFrame): preds dataframe without the low confidence matches
+    """
+
+    low_inds = []
+
+    # For each scene, obtain the tp, fp, and fn indices for maritime
+    # object detection in the *global* pred and gt dataframes
+    for scene_id in tqdm(gt["scene_id"].unique()):
+        pred_sc = pred[pred["scene_id"] == scene_id]
+        gt_sc = gt[gt["scene_id"] == scene_id]
+        low_inds_scene = match_low_confidence_preds(
+            pred_sc, gt_sc, distance_tolerance=distance_tolerance, costly_dist=costly_dist
+        )
+
+        low_inds += low_inds_scene
+
+    # Check matched pairs came from "LOW" labels
+    for pair in low_inds:
+        assert gt.iloc[pair["gt_idx"]]["confidence"] == "LOW", f"Index {pair['gt_idx']} is {gt.iloc[pair['gt_idx']]['confidence']}"
+
+    low_pred_inds = [a["pred_idx"] for a in low_inds]
+
+    df_out = pred.drop(index=low_pred_inds)
+    df_out = df_out.reset_index()
+    return df_out
+
+def match_low_confidence_preds(preds, gt, distance_tolerance=200, costly_dist=False):
+    """
+    Matches detections in a predictions dataframe to a ground truth data frame and isolate the low confidence matches
+    
+    Args:
+        preds (pd.DataFrame): contains inference results for a
+            single scene
+        gt (pd.DataFrame): contains ground truth labels for a single
+            scene
+        distance_tolerance (int, optional): Maximum distance
+            for valid detection. Defaults to 200.
+        costly_dist (bool): whether to assign 9999999 to entries in the
+            distance metrics greater than distance_tolerance; defaults to False
+
+    Returns:
+        low_inds (list, int): list of indices for the preds dataframe that are
+            associated as (1) correct detection in the *global* preds dataframe; (2) low confidence in the corresponding gt dataframe
+    """
+
+    # Getting pixel-level predicted and ground-truth detections
+    pred_array = np.array(
+        list(zip(preds["detect_scene_row"], preds["detect_scene_column"]))
+    )
+    gt_array = np.array(list(zip(gt["detect_scene_row"], gt["detect_scene_column"])))
+
+    # Getting a list of index with LOW in the ground truth dataframe
+    low_gt_inds = list(gt[gt["confidence"] == "LOW"].index)
+
+    # Building distance matrix using Euclidean distance pixel space
+    # multiplied by the UTM resolution (10 m per pixel)
+    dist_mat = distance_matrix(pred_array, gt_array, p=2) * PIX_TO_M
+    if costly_dist:
+        dist_mat[dist_mat > distance_tolerance] = 9999999 * PIX_TO_M
+
+    # Using Hungarian matching algorithm to assign lowest-cost gt-pred pairs
+    rows, cols = linear_sum_assignment(dist_mat)
+
+    low_inds = [
+        {"pred_idx": preds.index[rows[ii]], "gt_idx": gt.index[cols[ii]]}
+        for ii in range(len(rows))
+        if (dist_mat[rows[ii], cols[ii]] < distance_tolerance) and (gt.index[cols[ii]] in low_gt_inds)
+    ]
+
+    return low_inds
 
 def get_shore_preds(df, shoreline_root, scene_id, shore_tolerance_km):
     """
@@ -49,7 +134,7 @@ def get_shore_preds(df, shoreline_root, scene_id, shore_tolerance_km):
     return df_close
 
 
-def compute_loc_performance(preds, gt, distance_tolerance=200):
+def compute_loc_performance(preds, gt, distance_tolerance=200, costly_dist=False):
     """
     Computes maritime object detection performance from a prediction
     dataframe and a ground truth datafr
@@ -61,6 +146,7 @@ def compute_loc_performance(preds, gt, distance_tolerance=200):
             scene
         distance_tolerance (int, optional): Maximum distance
             for valid detection. Defaults to 200.
+        costly_dist (bool): whether to assign 9999999 to entries in the distance metrics greater than distance_tolerance; defaults to False
 
     Returns:
         tp_ind (list, dict): list of dicts with keys 'pred_idx', 'gt_idx';
@@ -82,6 +168,8 @@ def compute_loc_performance(preds, gt, distance_tolerance=200):
     # Building distance matrix using Euclidean distance pixel space
     # multiplied by the UTM resolution (10 m per pixel)
     dist_mat = distance_matrix(pred_array, gt_array, p=2) * PIX_TO_M
+    if costly_dist:
+        dist_mat[dist_mat > distance_tolerance] = 9999999 * PIX_TO_M
 
     # Using Hungarian matching algorithm to assign lowest-cost gt-pred pairs
     rows, cols = linear_sum_assignment(dist_mat)
@@ -305,7 +393,7 @@ def aggregate_f(
     return aggregate
 
 
-def score(pred, gt, shore_root, distance_tolerance=200, shore_tolerance=2):
+def score(pred, gt, shore_root, distance_tolerance=200, shore_tolerance=2, costly_dist=False):
     """Compute xView3 aggregate score from
 
     Args:
@@ -315,6 +403,7 @@ def score(pred, gt, shore_root, distance_tolerance=200, shore_tolerance=2):
         distance_tolerance (float): Maximum distance
             for valid detection. Defaults to 200.
         shore_tolerance (float): "close to shore" tolerance in km; defaults to 2
+        costly_dist (bool): whether to assign 9999999 to entries in the distance metrics greater than distance_tolerance; defaults to False
 
     Returns:
         scores (dict): dictionary containing aggregate xView score and
@@ -330,7 +419,7 @@ def score(pred, gt, shore_root, distance_tolerance=200, shore_tolerance=2):
         pred_sc = pred[pred["scene_id"] == scene_id]
         gt_sc = gt[gt["scene_id"] == scene_id]
         tp_inds_sc, fp_inds_sc, fn_inds_sc, = compute_loc_performance(
-            pred_sc, gt_sc, distance_tolerance=distance_tolerance
+            pred_sc, gt_sc, distance_tolerance=distance_tolerance, costly_dist=costly_dist
         )
 
         tp_inds += tp_inds_sc
@@ -370,7 +459,7 @@ def score(pred, gt, shore_root, distance_tolerance=200, shore_tolerance=2):
                     fp_inds_sc_shore,
                     fn_inds_sc_shore,
                 ) = compute_loc_performance(
-                    pred_sc_shore, gt_sc_shore, distance_tolerance=distance_tolerance
+                    pred_sc_shore, gt_sc_shore, distance_tolerance=distance_tolerance, costly_dist=costly_dist
                 )
                 tp_inds_shore += tp_inds_sc_shore
                 fp_inds_shore += fp_inds_sc_shore
@@ -442,6 +531,11 @@ def score(pred, gt, shore_root, distance_tolerance=200, shore_tolerance=2):
 
 
 def main(args):
+    # Print flags for log
+    print(f"--score_all: {args.score_all}")
+    print(f"--costly_dist: {args.costly_dist}")
+    print(f"--drop_low_detect: {args.drop_low_detect}")
+
     # Read in inference and ground truth detection files
     inference = pd.read_csv(args.inference_file, index_col=False)
     ground_truth = pd.read_csv(args.label_file, index_col=False)
@@ -460,6 +554,8 @@ def main(args):
 
     # By default we only score on high and medium confidence labels
     if not args.score_all:
+        if args.drop_low_detect:
+            inference = drop_low_confidence_preds(inference, ground_truth, distance_tolerance=args.distance_tolerance, costly_dist=args.costly_dist)
         ground_truth = ground_truth[
             ground_truth["confidence"].isin(["HIGH", "MEDIUM"])
         ].reset_index()
@@ -470,6 +566,7 @@ def main(args):
         args.shore_root,
         args.distance_tolerance,
         args.shore_tolerance,
+        args.costly_dist,
     )
     print(out)
     with open(args.output, "w") as fl:
@@ -503,9 +600,18 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--score_all",
-        type=bool,
-        default=False,
+        action=argparse.BooleanOptionalAction,
         help="Whether or not to score against all ground truth labels (inclusive of low confidence labels).",
+    )
+    parser.add_argument(
+        "--drop_low_detect",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not to drop predictions that are matched to low confidence labels.",
+    )
+    parser.add_argument(
+        "--costly_dist",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not to assign a large number (9999999) to distances greater than the distance tolerance threshold.",
     )
 
     args = parser.parse_args()
