@@ -28,6 +28,20 @@ conda install -c conda-forge ipywidgets
 jupyter nbextension enable --py widgetsnbextension
 ```
 
+## `/reference/metric.py`
+This script computes the scoring metric and outputs it to a JSON file.
+
+When computing the scoring metric for leaderboard and on the private holdout set, the xView3 Team uses:
+```
+python ./reference/metric.py --inference_file /path/to/solver_submission.csv \
+--label_file /path/to/ground_truth.csv \
+--output /path/to/output.json \
+--distance_tolerance 200 \
+--shore_tolerance 2 \
+--shore_root /path/to/shoreline/contours \
+--drop_low_detect \
+--costly_dist
+```
 
 ## `/reference/inference.py`
 This script allows you to generate predictions using the trained model weights from the reference implementation.
