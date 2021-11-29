@@ -67,7 +67,7 @@ The other arguments uses by `inference.py`, e.g., `--channels` and `--chips_path
 
 
 ## `Dockerfile`
-For final submission on the open-source track, top solvers will be required to provide a container that executes their model. This is an example of a `Dockerfile` meeting the required specification that supports `CUDA` and `Miniconda`. To build a Docker image and tagging it using the `Dockerfile`, first navigate to the root directory of this repo and then use:
+Top solvers will be required to provide a container that executes their model in order to qualify for awards. This is an example of a `Dockerfile` meeting the required specification that supports `CUDA` and `Miniconda`. To build a Docker image and tagging it using the `Dockerfile`, first navigate to the root directory of this repo and then use:
 ```
 docker build -t my-image-name:my-image-tag .
 ```
