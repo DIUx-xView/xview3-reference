@@ -12,6 +12,8 @@ We strongly recommend using [Anaconda](https://www.anaconda.com/products/individ
 conda env create -f environment.yml
 ```
 
+> The reference implementation is concepted to run on linux hosts only. Any attempt to run the command above on windows probably results in `ResolvePackageNotFound` errors.
+
 You may also need to add the `xview3` environment that this command creates to your list of `jupyter` kernels.  This can be done by executing:
 
 ```
