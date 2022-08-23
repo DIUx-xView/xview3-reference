@@ -1,9 +1,15 @@
 """
-Reproject and resample NetCDF4 fields.
+Reproject and resample Sentinel-1 OCN NetCDF4 fields.
 
 1. Convert NetCDF lon/lat/field -> GeoTIFF w/GCPs
 2. Reproject GeoTIFF from radar coords to EPSG:4326
 3. Resample reprojected OCN to match GRD grid
+
+These data processing scripts are for the xView3-SAR dataset
+accessible at https://iuu.xview.us/
+
+A complete explanation of what these scripts do is available in
+the xView3-SAR paper at https://arxiv.org/abs/2206.00897
 
 """
 import sys
