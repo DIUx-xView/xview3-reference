@@ -4,6 +4,11 @@ Sentinel-1 Radiometric Terrain Correction using ESA's SNAP software.
 
 Wrapper around SNAP's gpt CLI and GDAL CLI tools.
 
+These data processing scripts are for the xView3-SAR dataset
+accessible at https://iuu.xview.us/
+
+A complete explanation of what these scripts do is available in
+the xView3-SAR paper at https://arxiv.org/abs/2206.00897
 
 ESA STEP Forum
 --------------
@@ -186,9 +191,9 @@ https://forum.step.esa.int/t/snap-gpt-terrain-correction/498/3
 
 """
 import sys
+from datetime import datetime
 from pathlib import Path
 from subprocess import Popen
-from datetime import datetime
 
 global gpt
 global outdir
@@ -253,7 +258,7 @@ def run_operator(
 def log_transform(ftif, suffix="LOG"):
     """Log scaling (as per SNAP/Google) [linear to dB scale]:
 
-       L = 10 * log10(sig0)
+    L = 10 * log10(sig0)
     """
     fout = str(ftif).replace(".tif", f"_{suffix}.tif")
     calc = "'10 * log10(A + 0.00001)'"
@@ -268,8 +273,8 @@ def log_transform(ftif, suffix="LOG"):
 def qpower_transform(ftif, suffix="QPWR"):
     """Quarter-Power scaling:
 
-        P = 255 * B * sqrt(pxl)
-        B = 1 / [3 * median(sqrt(pxl))]
+    P = 255 * B * sqrt(pxl)
+    B = 1 / [3 * median(sqrt(pxl))]
     """
     fout = str(ftif).replace(".tif", f"_{suffix}.tif")
     calc = "'255 * (1 / (3 * median(sqrt(A)))) * sqrt(A)'"
@@ -402,7 +407,7 @@ def exec_preprocessing(fin):
             "-PsaveSigmaNought=true",
             "-PsaveProjectedLocalIncidenceAngle=true",
             f"-PpixelSpacingInMeter={pxlsize}",
-            # "-PmapProjection=WGS84",  # default WGS84  # TODO: Try full WKT
+            # "-PmapProjection=WGS84",  # default WGS84
             "-PdemName='SRTM 1Sec HGT'",
             "-PnodataValueAtSea=false",
         ],
